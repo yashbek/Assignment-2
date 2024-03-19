@@ -196,15 +196,6 @@ int isSorted(int* A, int n) {
   return 1;
 }
 
-void print(int ar[]) {
-  int i;
-  for (i = 0; i < NARRAY; ++i) {
-    printf("%d ", ar[i]);
-  }
-  printf("\n");
-}
-
-// Driver code
 int main(void) {
   srand(time(NULL)); 
   for(int i = 0; i < NARRAY; i++)
@@ -214,40 +205,49 @@ int main(void) {
     array2[i] = val;
     array3[i] = val;
   }
-  printf("-------------\n");
-  clock_t seq = clock();
+  double avgseq = 0;
+  double avgomp = 0;
+  double avgpt = 0;
+  for (int run = 0; run < 5; run++){
+    printf("-------------\n");
+    clock_t seq = clock();
 
-  BucketSort(array1);
+    BucketSort(array1);
 
-  double seqtime = clock() - seq;
-  printf("seq took %f seconds",seqtime/CLOCKS_PER_SEC);
-  int seqFlag = isSorted(array1, NARRAY);
-  if (seqFlag == 1){
-    printf("\nSorted\n");
+    double seqtime = clock() - seq;
+    seqtime = seqtime/CLOCKS_PER_SEC;
+    avgseq += seqtime/5;
+    printf("seq took %f seconds",seqtime);
+    int seqFlag = isSorted(array1, NARRAY);
+    if (seqFlag == 1){
+      printf("\nSorted\n");
+    }
+
+    printf("-------------\n");
+    clock_t omp = clock();
+
+    OMPBucketSort(array2);
+    double omptime = clock() - omp;
+    omptime = omptime/CLOCKS_PER_SEC;
+    avgomp += omptime/5;
+    printf("omp took %f seconds", omptime);
+    int ompFlag = isSorted(array2, NARRAY);
+    if (ompFlag == 1){
+      printf("\nSorted\n");
+    }
+    printf("-------------\n");
+    clock_t pt = clock();
+
+    PTBucketSort(); //operates on array3 by default
+    double pttime = clock() - pt;
+    pttime = pttime/CLOCKS_PER_SEC;
+    avgpt += pttime/5;
+    printf("pthreads took %f seconds", pttime);
+    int ptFlag = isSorted(array2, NARRAY);
+    if (ptFlag == 1){
+      printf("\nSorted\n");
+    }
   }
-
-  printf("-------------\n");
-  clock_t omp = clock();
-
-  OMPBucketSort(array2);
-  double omptime = clock() - omp;
-  printf("omp took %f seconds", omptime/CLOCKS_PER_SEC);
-  int ompFlag = isSorted(array2, NARRAY);
-//   print(array2);
-  if (ompFlag == 1){
-    printf("\nSorted\n");
-  }
-  printf("-------------\n");
-  clock_t pt = clock();
-
-  PTBucketSort(); //operates on array3 by default
-  double pttime = clock() - pt;
-  printf("pthreads took %f seconds", pttime/CLOCKS_PER_SEC);
-  int ptFlag = isSorted(array2, NARRAY);
-//   print(array2);
-  if (ptFlag == 1){
-    printf("\nSorted\n");
-  }
-  
+  printf("in-second avgs for Serial:%f, OpenMP:%f, Pthreads:%f", avgseq, avgomp, avgpt);
   return 0;
 }
